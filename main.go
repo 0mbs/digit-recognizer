@@ -39,11 +39,17 @@ func generateRandomBiases(row int) []float64 {
 	return vec
 }
 
-func initLayer(row int, col int) Layer {
-	weightMatrix := generateRandomWeights(row, col)
-	biasVector := generateRandomBiases(row)
+func initLayer(from int, to int) Layer {
+	weightMatrix := generateRandomWeights(from, to)
+	biasVector := generateRandomBiases(from)
 	layer := Layer{Weight: weightMatrix, Bias: biasVector}
 	return layer
+}
+
+func forwardPass(layer Layer, inputVector [][]float64) []float64 {
+	multiplied := utils.Matmul(inputVector, layer.Weight)
+	fmt.Printf("multiplied dimensions: %dx%d\n", len(multiplied), len(multiplied[0]))
+	return multiplied[0]
 }
 
 func main() {
@@ -60,4 +66,16 @@ func main() {
 	fmt.Printf("Loaded %d images and %d labels\n", len(images), len(labels))
 
 	// --------------------
+	// initialize first layer with Weight [784 x 16] & bias [16] to transform
+	// 784 activations to 16.
+	firstActivations := images[0]
+	input := make([][]float64, 1)
+	input[0] = firstActivations
+	layer1 := initLayer(784,16)
+
+	// fmt.Printf("forward pass with %s input", input)
+	secondActivations := forwardPass(layer1, input)
+	fmt.Printf("output: %v", secondActivations)
+
+	fmt.Printf("activation before: %d, after: %d", len(firstActivations), len(secondActivations))
 }
