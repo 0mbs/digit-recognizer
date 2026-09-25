@@ -4,12 +4,22 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 )
 
 type Dataset struct {
 	Images [][]float64 // 28x28 float64 values in range [0, 1]
 	Labels []int32 // 0-9
+}
+
+type Layer struct {
+	Weight [][]float64
+	Bias []float64
+}
+
+type Network struct {
+	Layers []Layer
 }
 
 func readIDXFile(filepath string) ([][]float64, error) {
@@ -79,6 +89,32 @@ func ReadLabels(filename string) ([]int, error) {
 	}
 
 	return labels, nil
+}
+
+func generateRandomWeights(row int, col int) [][]float64 {
+	mat := make([][]float64, row)
+	for i := range mat {
+		mat[i] = make([]float64, col)
+		for j := range mat[i] {
+			mat[i][j] = rand.Float64()
+		}
+	}
+	return mat
+}
+
+func generateRandomBiases(row int) []float64 {
+	vec := make([]float64, row)
+	for i := range row {
+		vec[i] = rand.Float64()
+	}
+	return vec
+}
+
+func initLayer(row int, col int) Layer {
+	weightMatrix := generateRandomWeights(row, col)
+	biasVector := generateRandomBiases(row)
+	layer := Layer{Weight: weightMatrix, Bias: biasVector}
+	return layer
 }
 
 func main() {
