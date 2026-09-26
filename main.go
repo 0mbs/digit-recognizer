@@ -57,7 +57,7 @@ func createNetwork() Network {
 
 func forwardPass(layer Layer, input [][]float64) []float64 {
 	multiplied := utils.Matmul(input, layer.Weight)
-	transformed := multiplied[0]
+	transformed := utils.Add(multiplied[0], layer.Bias)
 	outputVector := utils.Activate(transformed)
 
 	fmt.Printf("multiplied dimensions: %dx%d\n", len(multiplied), len(multiplied[0]))
@@ -86,12 +86,12 @@ func main() {
 	network := createNetwork()
 
 	for i, layer := range network.Layers {
-		matrix := mat
-		outputVector := forwardPass(layer, matrix)
+		outputVector := forwardPass(layer, mat)
 		if i == 2 {
 			mat[0] = utils.SoftMaxVec(outputVector)
+		} else {
+			mat[0] = outputVector
 		}
-		mat[0] = outputVector
 	}
 
 	output := mat[0]

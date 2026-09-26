@@ -22,6 +22,15 @@ func Matmul(matA, matB [][]float64) [][]float64 {
 	return result
 }
 
+func Add(vecA, vecB []float64) []float64 {
+	if len(vecA) != len(vecB) { return nil }
+	outputVec := make([]float64, len(vecA))
+	for i := range vecA {
+		outputVec[i] = vecA[i] + vecB[i]
+	}
+	return outputVec
+}
+
 func Activate(vector []float64) []float64 {
 	for i := range vector {
 		processed := Sigmoid(vector[i])
