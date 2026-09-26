@@ -39,17 +39,32 @@ func generateRandomBiases(row int) []float64 {
 	return vec
 }
 
-func initLayer(from int, to int) Layer {
-	weightMatrix := generateRandomWeights(from, to)
-	biasVector := generateRandomBiases(from)
+func initLayer(inputSize int, outputSize int) Layer {
+	weightMatrix := generateRandomWeights(inputSize, outputSize)
+	biasVector := generateRandomBiases(outputSize)
 	layer := Layer{Weight: weightMatrix, Bias: biasVector}
 	return layer
 }
 
-func forwardPass(layer Layer, inputVector [][]float64) []float64 {
-	multiplied := utils.Matmul(inputVector, layer.Weight)
+// return simple 3 layer neural net with 2 hidden layers and 1 output layer
+func createNetwork() Network {
+	nn := Network{make([]Layer, 3)}
+	nn.Layers[0] = initLayer(784,16)
+	nn.Layers[1] = initLayer(16, 16)
+	nn.Layers[2] = initLayer(16, 10)
+	return nn
+}
+
+func forwardPass(layer Layer, input [][]float64) []float64 {
+	multiplied := utils.Matmul(input, layer.Weight)
+	transformed := multiplied[0]
+	outputVector := make([]float64, len(transformed))
+
+	for i, value := range transformed {
+		outputVector[i] = utils.SoftMax(value + layer.Bias[i])
+	} 
 	fmt.Printf("multiplied dimensions: %dx%d\n", len(multiplied), len(multiplied[0]))
-	return multiplied[0]
+	return outputVector
 }
 
 func main() {
@@ -66,16 +81,19 @@ func main() {
 	fmt.Printf("Loaded %d images and %d labels\n", len(images), len(labels))
 
 	// --------------------
-	// initialize first layer with Weight [784 x 16] & bias [16] to transform
-	// 784 activations to 16.
+	// extract the first set of activations (784 nodes) and pass them into
+	// feedforward neural net which consists of 2 hidden layers (784 -> 16 -> 16)
 	firstActivations := images[0]
-	input := make([][]float64, 1)
-	input[0] = firstActivations
-	layer1 := initLayer(784,16)
+	mat := make([][]float64, 1)
+	mat[0] = firstActivations
+	network := createNetwork()
 
-	// fmt.Printf("forward pass with %s input", input)
-	secondActivations := forwardPass(layer1, input)
-	fmt.Printf("output: %v", secondActivations)
+	for i := range network.Layers {
+		matrix := mat
+		mat[0] = forwardPass(network.Layers[i], matrix)
+	}
 
-	fmt.Printf("activation before: %d, after: %d", len(firstActivations), len(secondActivations))
+	output := mat[0]
+	fmt.Printf("activation before: %d, after: %d", len(firstActivations), len(output))
+	fmt.Printf("output: %v", output)
 }
