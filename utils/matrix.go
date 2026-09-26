@@ -32,9 +32,10 @@ func Add(vecA, vecB []float64) []float64 {
 }
 
 func Activate(vector []float64) []float64 {
+	output := make([]float64, len(vector))
 	for i := range vector {
 		processed := Sigmoid(vector[i])
-		vector[i] = processed
+		output[i] = processed
 	}
-	return vector
+	return output
 }
