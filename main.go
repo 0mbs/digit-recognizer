@@ -58,11 +58,8 @@ func createNetwork() Network {
 func forwardPass(layer Layer, input [][]float64) []float64 {
 	multiplied := utils.Matmul(input, layer.Weight)
 	transformed := multiplied[0]
-	outputVector := make([]float64, len(transformed))
+	outputVector := utils.Activate(transformed)
 
-	for i, value := range transformed {
-		outputVector[i] = utils.SoftMax(value + layer.Bias[i])
-	} 
 	fmt.Printf("multiplied dimensions: %dx%d\n", len(multiplied), len(multiplied[0]))
 	return outputVector
 }
@@ -83,17 +80,21 @@ func main() {
 	// --------------------
 	// extract the first set of activations (784 nodes) and pass them into
 	// feedforward neural net which consists of 2 hidden layers (784 -> 16 -> 16)
-	firstActivations := images[0]
+	input := images[0]
 	mat := make([][]float64, 1)
-	mat[0] = firstActivations
+	mat[0] = input 
 	network := createNetwork()
 
-	for i := range network.Layers {
+	for i, layer := range network.Layers {
 		matrix := mat
-		mat[0] = forwardPass(network.Layers[i], matrix)
+		outputVector := forwardPass(layer, matrix)
+		if i == 2 {
+			mat[0] = utils.SoftMaxVec(outputVector)
+		}
+		mat[0] = outputVector
 	}
 
 	output := mat[0]
-	fmt.Printf("activation before: %d, after: %d", len(firstActivations), len(output))
+	fmt.Printf("activation before: %d, after: %d", len(input), len(output))
 	fmt.Printf("output: %v", output)
 }

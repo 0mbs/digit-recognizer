@@ -21,3 +21,11 @@ func Matmul(matA, matB [][]float64) [][]float64 {
 	}
 	return result
 }
+
+func Activate(vector []float64) []float64 {
+	for i := range vector {
+		processed := Sigmoid(vector[i])
+		vector[i] = processed
+	}
+	return vector
+}
